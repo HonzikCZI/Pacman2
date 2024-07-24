@@ -10,7 +10,8 @@ screen_height = 500
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Pacman2 1.1")
 
-#nastaveni hry
+# nastaveni hry
+DEBUG = False
 jsme_ve_hre = False
 pacman_distance = 5
 fps = 60
@@ -36,23 +37,17 @@ czvlajka_rect = czvlajka_image.get_rect()
 czvlajka_rect.center = (993, 493)
 
 pacman = pygame.image.load("img/pacman2.png")
-pacman_rect = pacman.get_rect()
-pacman_rect.center = (screen_width//2, screen_height//2)
+pacman_rect = pacman.get_rect(center = (screen_width//2, screen_height//2))
 
 hvezda = pygame.image.load("img/hvezda.png")
 hvezda_rect = hvezda.get_rect()
 hvezda_rect.center = (100, 350)
 
-# systémové fonty
-# fonts = pygame.font.get_fonts()
-# for one_font in fonts:
-#     print(one_font)
-
-#nataveni fontu
+# nataveni fontu
 font_big = pygame.font.Font("pismo/Emulogic.ttf", 40) 
 font_medium = pygame.font.Font("pismo/Emulogic.ttf", 20) 
 
-#font a text
+# font a text
 pacman2_text = font_big.render("Pacman 2", True, yellow)
 pacman2_text_rect = pacman2_text.get_rect()
 pacman2_text_rect.center = (500, 40)
@@ -72,16 +67,16 @@ score_text_rect = score_text.get_rect()
 score_text_rect.x =10
 score_text_rect.y =10
 
-#hudba v pozadi
+# hudba v pozadi
 pygame.mixer.music.load("sound/pacman.mp3")
-#prehrajeme hudbu v pozadi
+# prehrajeme hudbu v pozadi
 pygame.mixer.music.play(-1, 0.0,2000)
 
-#nahrani zvuky
+# nahrani zvuky
 sound_mission = pygame.mixer.Sound("sound/mission.mp3")
 sound_mission.set_volume(1.)
 
-#nahrani zvuku
+# nahrani zvuku
 hvezda_sound = pygame.mixer.Sound("sound/hvezdas.mp3") 
 hvezda_sound.set_volume(0.5)
 
@@ -94,7 +89,7 @@ while lets_continue:
             lets_continue = False
 
         
-    #vypis vsech klaves
+    # vypis vsech klaves
     keys = pygame.key.get_pressed()
     if jsme_ve_hre == False: # jsem v menu
         if (keys[pygame.K_RETURN]) and (jsme_ve_hre == False):
@@ -104,10 +99,10 @@ while lets_continue:
             jsme_ve_hre = False
             # pacman_rect.center = (screen_width//2, screen_height//2)
         elif (keys[pygame.K_UP] or keys[pygame.K_w]) and pacman_rect.top > 50:
-            pacman_angle = 270
+            pacman_angle = 90
             pacman_rect.y -= pacman_distance
         elif(keys[pygame.K_DOWN] or keys[pygame.K_s]) and pacman_rect.bottom < screen_height:
-            pacman_angle = 90
+            pacman_angle = 270
             pacman_rect.y += pacman_distance
         elif (keys[pygame.K_LEFT] or keys[pygame.K_a]) and pacman_rect.left > 0:
             pacman_rect.x -= pacman_distance
@@ -116,17 +111,19 @@ while lets_continue:
             pacman_rect.x += pacman_distance
             pacman_angle = 0
         
-        rotated_pacman = pygame.transform.rotate(pacman, pacman_angle)
-        rotated_pacman_rect = rotated_pacman.get_rect()
-        
-        #Kontrola kolize
+        # Kontrola kolize
         if pacman_rect.colliderect(hvezda_rect):
             hvezda_rect.centerx = random.randint(0 + 24, 1000 - 24)
             hvezda_rect.centery = random.randint(50 + 24, 500 - 24) 
             score += 1
             hvezda_sound.play()
     
-    #obrazky a text
+    # obrazky a text
+    rotated_pacman = pygame.transform.rotate(pacman, pacman_angle)
+    rotated_pacman_rect = rotated_pacman.get_rect()
+    rotated_pacman_rect.x = pacman_rect.x 
+    rotated_pacman_rect.y = pacman_rect.y 
+    
     if jsme_ve_hre == False: # jsem v menu
         screen.fill(blue)
         pygame.draw.line(screen, black, (0, 0), (1000, 500), 5)
@@ -138,28 +135,27 @@ while lets_continue:
         screen.blit(enter_text, enter_text_rect)
         screen.blit(pacman2_text, pacman2_text_rect)
     else: # jsem ve hre
-            # score +1
         score_text = font_medium.render(f"Score: {score}", True, blue)
         score_text_rect = score_text.get_rect()
         score_text_rect.x =10
         score_text_rect.y =10  
         screen.fill(black)
-        screen.blit(pacman, pacman_rect)
+        screen.blit(rotated_pacman, rotated_pacman_rect)
         screen.blit(hvezda, hvezda_rect)
         pygame.draw.line(screen, yellow, (0, 50), (1000, 50), 2)
         screen.blit(game_text, game_text_rect)
         screen.blit(score_text, score_text_rect)
-          #tvary(hidboxsi)
-        #pygame.draw.rect(screen, red, pacman_rect, 1)
-        #pygame.draw.rect(screen, green, hvezda_rect, 1)
         
-        #tajna pisnicka
-        if score == 500:
+        # tvary (hitbox) DEBUG
+        if (DEBUG):
+            pygame.draw.rect(screen, red, pacman_rect, 1)
+            pygame.draw.rect(screen, green, hvezda_rect, 1)
+        
+        # tajna pisnicka
+        if score == 100:
             sound_mission.play()
-            
-        
-        
-    #Udatujeme obrazovku
+
+    # Udatujeme obrazovku
     pygame.display.update()
 
     # tikani hodin
