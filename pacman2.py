@@ -162,4 +162,5 @@ while lets_continue:
     clock.tick(fps)
 
 # Ukončení hry
+print("Konec")
 pygame.quit
